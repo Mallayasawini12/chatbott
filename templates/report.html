@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Advisory Report - {{ result.recommended_career }}</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --primary-light: #38bdf8;
+            --accent: #0284c7;
+            --text-dark: #0f172a;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --card-border: #e2e8f0;
+            --badge-bg: #e0f2fe;
+            --badge-text: #0369a1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .report-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 40px;
+            position: relative;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            border: none;
+        }
+
+        .btn-back {
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+        }
+
+        .btn-back:hover {
+            background-color: #e2e8f0;
+        }
+
+        .btn-print {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-print:hover {
+            background-color: #0369a1;
+        }
+
+        .report-header {
+            border-bottom: 2px solid var(--card-border);
+            padding-bottom: 30px;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .logo-icon {
+            color: var(--accent);
+        }
+
+        .report-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            background-color: var(--bg-light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .meta-item strong {
+            color: var(--text-dark);
+        }
+
+        .meta-item span {
+            color: var(--text-light);
+            display: block;
+            margin-top: 4px;
+        }
+
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .career-title-hero {
+            color: var(--accent);
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .career-description {
+            font-size: 1.1rem;
+            color: #334155;
+            margin-bottom: 20px;
+        }
+
+        /* Chart Scores styling */
+        .chart-section {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 35px;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .bar-item {
+            margin-bottom: 15px;
+        }
+
+        .bar-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .bar-outer {
+            width: 100%;
+            height: 12px;
+            background: #cbd5e1;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+            border-radius: 6px;
+        }
+
+        /* Roadmap List styling */
+        .roadmap-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            padding-left: 20px;
+            border-left: 3px solid #e2e8f0;
+        }
+
+        .timeline-item {
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -28px;
+            top: 6px;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #bae6fd;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .timeline-details {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* Skills Badges */
+        .badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            background-color: var(--badge-bg);
+            color: var(--badge-text);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .list-unstyled {
+            list-style: none;
+        }
+
+        .list-unstyled li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .list-unstyled li i {
+            position: absolute;
+            left: 0;
+            top: 4px;
+            color: var(--accent);
+        }
+
+        .list-links li a {
+            color: var(--accent);
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .list-links li a:hover {
+            color: #0369a1;
+        }
+
+        /* Footer */
+        .report-footer {
+            border-top: 1px solid var(--card-border);
+            padding-top: 25px;
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        /* Print Optimization */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+
+            .report-container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+
+            .header-actions {
+                display: none;
+            }
+
+            .timeline-item::before {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .bar-outer, .bar-inner, .badge {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-container">
+    <div class="header-actions">
+        <button onclick="window.close();" class="btn btn-back">
+            <i class="fa-solid fa-xmark"></i> Close Window
+        </button>
+        <button onclick="window.print();" class="btn btn-print">
+            <i class="fa-solid fa-print"></i> Print Report
+        </button>
+    </div>
+
+    <div class="report-header">
+        <div class="logo">
+            <i class="fa-solid fa-compass-drafting logo-icon"></i>
+            <span>PathFinder AI Advisory</span>
+        </div>
+        <h1>Career Suitability Assessment Report</h1>
+        
+        <div class="report-meta">
+            <div class="meta-item">
+                <strong>Candidate Name</strong>
+                <span>{{ result.username }}</span>
+            </div>
+            <div class="meta-item">
+                <strong>Registered Email</strong>
+                <span>{{ result.email }}</span>
+            </div>
+            <div class="meta-item">
+                <strong>Evaluation Date</strong>
+                <span>{{ result.timestamp }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- HERO RECOMMENDATION -->
+    <div class="section">
+        <p style="text-transform: uppercase; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; color: var(--text-light);">Primary Recommendation</p>
+        <h1 class="career-title-hero">{{ career_details.title }}</h1>
+        <p class="career-description">{{ career_details.description }}</p>
+    </div>
+
+    <!-- INTEREST SCORE CHART -->
+    <div class="section chart-section">
+        <h3 class="chart-title"><i class="fa-solid fa-chart-bar"></i> Score Distribution Matrix</h3>
+        {% for name, percentage in scores.items() %}
+            <div class="bar-item">
+                <div class="bar-labels">
+                    <span>{{ name }}</span>
+                    <span>{{ percentage }}%</span>
+                </div>
+                <div class="bar-outer">
+                    <div class="bar-inner" style="width: {{ percentage }}%;"></div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- ROADMAP TIMELINE -->
+    <div class="section">
+        <h2><i class="fa-solid fa-map-location-dot"></i> Step-by-Step Career Roadmap</h2>
+        <div class="roadmap-timeline">
+            {% for phase in career_details.roadmap %}
+                <div class="timeline-item">
+                    <div class="timeline-title">{{ phase.phase }}</div>
+                    <div class="timeline-details">{{ phase.details }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- SKILLS MATRIX -->
+    <div class="section">
+        <h2><i class="fa-solid fa-screwdriver-wrench"></i> Core Skills Matrix</h2>
+        <div style="margin-bottom: 15px;">
+            <strong style="font-size: 0.9rem; display: block; margin-bottom: 8px; color: var(--primary);">Programming Languages</strong>
+            <div class="badge-container">
+                {% for skill in career_details.skills.programming %}
+                    <span class="badge">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <strong style="font-size: 0.9rem; display: block; margin-bottom: 8px; color: var(--primary);">Databases & Storage</strong>
+            <div class="badge-container">
+                {% for skill in career_details.skills.databases %}
+                    <span class="badge">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <strong style="font-size: 0.9rem; display: block; margin-bottom: 8px; color: var(--primary);">Tools & Frameworks</strong>
+            <div class="badge-container">
+                {% for skill in career_details.skills.tools %}
+                    <span class="badge">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- COURSES & CERTIFICATIONS -->
+    <div class="section">
+        <h2><i class="fa-solid fa-graduation-cap"></i> Recommended Study & Certification Programs</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+            <div>
+                <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: var(--primary);">Online Courses</h3>
+                <ul class="list-unstyled list-links">
+                    {% for course in career_details.courses %}
+                        <li>
+                            <i class="fa-solid fa-circle-play"></i>
+                            <a href="{{ course.link }}" target="_blank">{{ course.name }}</a>
+                            <span style="font-size: 0.85rem; color: var(--text-light); display: block;">Platform: {{ course.platform }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div>
+                <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: var(--primary);">Industry Certifications</h3>
+                <ul class="list-unstyled">
+                    {% for cert in career_details.certifications %}
+                        <li>
+                            <i class="fa-solid fa-certificate"></i>
+                            {{ cert }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PLACEMENT TIPS -->
+    <div class="section">
+        <h2><i class="fa-solid fa-briefcase"></i> Placement Preparation & Advice</h2>
+        <ul class="list-unstyled">
+            {% for tip in career_details.placement_tips %}
+                <li>
+                    <i class="fa-solid fa-circle-arrow-right"></i>
+                    {{ tip }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- ACADEMICS & INTERNSHIPS -->
+    <div class="section">
+        <h2><i class="fa-solid fa-building-columns"></i> Academics & Internships</h2>
+        <div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; border: 1px dashed var(--card-border);">
+            <p style="margin-bottom: 15px;"><strong>Academic Guidance:</strong> {{ career_details.higher_studies }}</p>
+            <p><strong>Internship Channels:</strong> {{ career_details.internships }}</p>
+        </div>
+    </div>
+
+    <div class="report-footer">
+        <p>This document is automatically compiled based on the PathFinder AI competency matrix evaluation.</p>
+        <p style="margin-top: 5px;">&copy; 2026 PathFinder AI Career Services. All Rights Reserved.</p>
+    </div>
+</div>
+
+</body>
+</html>

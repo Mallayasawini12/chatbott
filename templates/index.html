@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - PathFinder AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar glassmorphic">
+        <div class="sidebar-user">
+            <div class="avatar">
+                <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <div class="user-info">
+                <h3>{{ user.username }}</h3>
+                <p>{{ user.email }}</p>
+            </div>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="menu-item active" data-target="chat-panel">
+                <i class="fa-solid fa-comments"></i> <span>AI Counselor Chat</span>
+            </li>
+            <li class="menu-item" data-target="resume-panel">
+                <i class="fa-solid fa-file-invoice"></i> <span>Resume Analyzer</span>
+            </li>
+            <li class="menu-item" data-target="quiz-panel">
+                <i class="fa-solid fa-clipboard-question"></i> <span>Career Quiz</span>
+            </li>
+        </ul>
+        
+        <div class="sidebar-footer">
+            <div class="info-card">
+                <h4><i class="fa-solid fa-lightbulb"></i> Pro-Tip</h4>
+                <p>Upload a PDF/TXT resume in the analyzer tab to get a quick skill gap report and personalized course options!</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Workspace Panels -->
+    <section class="workspace">
+        
+        <!-- 1. AI CHAT PANEL -->
+        <div id="chat-panel" class="workspace-panel active-panel">
+            <div class="panel-header">
+                <div class="panel-title-group">
+                    <div class="active-indicator"></div>
+                    <div>
+                        <h2>AI Career Counselor</h2>
+                        <p>Ask about roadmaps, courses, skills, placement tips, or higher studies</p>
+                    </div>
+                </div>
+                <div class="panel-actions">
+                    <button id="tts-toggle-btn" class="action-btn" title="Toggle Text-to-Speech">
+                        <i class="fa-solid fa-volume-high"></i> <span>TTS: Off</span>
+                    </button>
+                    <button id="clear-chat-btn" class="action-btn btn-danger-action" title="Clear Chat History">
+                        <i class="fa-solid fa-trash-can"></i> <span>Clear</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-messages-container" id="chat-messages">
+                <!-- Messages will be injected by JavaScript -->
+                <div class="bot-msg-wrapper msg-animate">
+                    <div class="bot-avatar"><i class="fa-solid fa-robot"></i></div>
+                    <div class="message-bubble bot-bubble">
+                        Welcome! I'm your PathFinder AI counselor. 🌟 Feel free to ask me any questions about tech careers, roadmaps, skills, certifications, and placements.
+                        <br><br>
+                        Or, if you are unsure about your path, try typing: **"What career should I choose?"** or navigate to the **Career Quiz** tab in the sidebar!
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-wrapper">
+                <form id="chat-form" class="chat-input-form">
+                    <button type="button" id="voice-input-btn" class="voice-btn" title="Speak to Chatbot">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <input type="text" id="chat-message-input" placeholder="Type your career question here..." required autocomplete="off">
+                    <button type="submit" class="send-btn">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 2. RESUME ANALYZER PANEL -->
+        <div id="resume-panel" class="workspace-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Resume Analyzer & Skill Mapper</h2>
+                    <p>Upload your resume to evaluate compatibility with top tech roles and see missing skills</p>
+                </div>
+            </div>
+            
+            <div class="panel-content">
+                <div class="analyzer-grid">
+                    <!-- Upload Box -->
+                    <div class="upload-container glassmorphic" id="drop-zone">
+                        <input type="file" id="resume-file-input" accept=".txt,.pdf" style="display: none;">
+                        <i class="fa-solid fa-cloud-arrow-up upload-icon animate-bounce"></i>
+                        <h3>Drag & Drop Resume</h3>
+                        <p>Accepts only PDF and TXT files (Max 4MB)</p>
+                        <button type="button" class="btn-primary" id="browse-files-btn">Browse Files</button>
+                        <div id="file-name-display" class="file-name-display"></div>
+                    </div>
+                    
+                    <!-- Analysis Progress -->
+                    <div id="analyzer-loading" class="analyzer-loading glassmorphic hidden">
+                        <div class="spinner"></div>
+                        <h3>Analyzing Resume...</h3>
+                        <p>Scanning text, identifying core skills, and checking career compatibility</p>
+                    </div>
+
+                    <!-- Analysis Output -->
+                    <div id="analyzer-result" class="analyzer-result glassmorphic hidden">
+                        <div class="result-header">
+                            <div class="match-score-card">
+                                <div class="radial-progress-container">
+                                    <!-- Dynamic SVGs/dials can go here, using a CSS-backed circle -->
+                                    <div class="score-percentage-value" id="match-score-val">0%</div>
+                                    <div class="score-label">Compatibility</div>
+                                </div>
+                            </div>
+                            <div class="match-overview">
+                                <h3>Recommended Track:</h3>
+                                <h2 id="recommended-role-title">Software Developer</h2>
+                                <p>Your resume shows a strong alignment with this role. Check the skills audit below to address your career gaps.</p>
+                            </div>
+                        </div>
+
+                        <hr class="divider">
+
+                        <div class="skills-audit-section">
+                            <h3><i class="fa-solid fa-circle-check text-success"></i> Skills Found in Resume</h3>
+                            <div class="skills-badge-container" id="matched-skills-badges">
+                                <!-- JS puts items here -->
+                            </div>
+                            
+                            <h3 class="mt-4"><i class="fa-solid fa-circle-xmark text-warning"></i> Missing Career-Critical Skills</h3>
+                            <div class="skills-badge-container" id="missing-skills-badges">
+                                <!-- JS puts items here -->
+                            </div>
+                        </div>
+
+                        <hr class="divider">
+
+                        <div class="recommendations-section">
+                            <h3>📚 Customized Recommendations</h3>
+                            <div class="rec-grid">
+                                <div class="rec-card">
+                                    <h4>Online Courses</h4>
+                                    <ul id="recommended-courses-list">
+                                        <!-- JS puts items here -->
+                                    </ul>
+                                </div>
+                                <div class="rec-card">
+                                    <h4>Placement Prep Tips</h4>
+                                    <ul id="recommended-tips-list">
+                                        <!-- JS puts items here -->
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. CAREER ASSESSMENT QUIZ PANEL -->
+        <div id="quiz-panel" class="workspace-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Career Suitability Quiz</h2>
+                    <p>Answer a few questions about your preferences to find the best career fit</p>
+                </div>
+            </div>
+            
+            <div class="panel-content">
+                <!-- Quiz Form Setup -->
+                <div id="quiz-intro-card" class="quiz-container-card glassmorphic">
+                    <i class="fa-solid fa-clipboard-question quiz-intro-icon"></i>
+                    <h2>Find Your Tech Destiny</h2>
+                    <p>This interactive questionnaire evaluates your logical reasoning, mathematical preference, UI/UX creativity, and networking interests to recommend the ideal track among Software Developer, Data Scientist, Cybersecurity, AI/ML, and Web Development.</p>
+                    <ul>
+                        <li><i class="fa-solid fa-check text-primary"></i> 8 Multiple Choice Questions</li>
+                        <li><i class="fa-solid fa-check text-primary"></i> Takes less than 2 minutes</li>
+                        <li><i class="fa-solid fa-check text-primary"></i> Instantly downloadable career recommendation report</li>
+                    </ul>
+                    <button type="button" class="btn-primary btn-large" id="start-quiz-btn">Start Assessment</button>
+                </div>
+
+                <!-- Active Question Container -->
+                <div id="quiz-questions-card" class="quiz-container-card glassmorphic hidden">
+                    <div class="quiz-progress-bar-wrapper">
+                        <div class="quiz-progress-text">Question <span id="current-q-num">1</span> of 8</div>
+                        <div class="quiz-progress-bar">
+                            <div class="quiz-progress-fill" id="q-progress-fill" style="width: 12.5%;"></div>
+                        </div>
+                    </div>
+
+                    <div id="quiz-question-box" class="quiz-question-box">
+                        <h3 id="question-text">Question content goes here?</h3>
+                        <div class="quiz-options-list" id="question-options">
+                            <!-- JS injects radio option cards here -->
+                        </div>
+                    </div>
+
+                    <div class="quiz-nav-buttons">
+                        <button type="button" class="btn-secondary" id="quiz-prev-btn" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
+                        <button type="button" class="btn-primary" id="quiz-next-btn">Next <i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Quiz Results Card -->
+                <div id="quiz-results-card" class="quiz-container-card glassmorphic hidden">
+                    <i class="fa-solid fa-award results-icon animate-pulse"></i>
+                    <h2>Your Ideal Career Recommendation</h2>
+                    <h1 class="highlight-career" id="results-career-title">Data Scientist</h1>
+                    <p>Based on your answers, you showed strong aptitude and interest in this domain. Below is the breakdown of your career interests:</p>
+                    
+                    <div class="charts-container" id="results-bar-chart">
+                        <!-- JS injects progress bars for scores here -->
+                    </div>
+
+                    <div class="quiz-result-actions mt-4">
+                        <a href="#" id="view-report-link" target="_blank" class="btn-primary btn-large">
+                            <i class="fa-solid fa-file-pdf"></i> Generate Detailed Career Report
+                        </a>
+                        <button type="button" class="btn-secondary" id="restart-quiz-btn">
+                            <i class="fa-solid fa-rotate-right"></i> Retake Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Inject quiz questions data for JS -->
+<script>
+    const quizQuestionsData = {{ quiz_questions | tojson | safe if quiz_questions else '[]' }};
+</script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+<script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+{% endblock %}

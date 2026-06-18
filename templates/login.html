@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Login - PathFinder AI{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card glassmorphic animate-fade-in">
+        <div class="auth-header">
+            <h2>Welcome Back</h2>
+            <p>Access your AI Career Counselor & Dashboard</p>
+        </div>
+        
+        <form action="{{ url_for('login') }}" method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="username"><i class="fa-solid fa-user"></i> Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="btn-submit btn-primary">
+                Login <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('register') }}">Create an account</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
