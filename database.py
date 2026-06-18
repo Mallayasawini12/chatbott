@@ -3,7 +3,11 @@ import os
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'career_chatbot.db')
+if os.environ.get('VERCEL'):
+    DB_PATH = '/tmp/career_chatbot.db'
+else:
+    DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'career_chatbot.db')
+
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
